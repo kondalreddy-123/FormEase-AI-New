@@ -1,6 +1,92 @@
 // Demo AI service. Replace these functions with a secure server-side
 // OpenAI integration for production. Never expose an API key in the browser.
+const SERVICES = [
+  {
+    name: "Post-Matric Scholarship",
+    category: "Education",
+    needsIncome: true,
+    purpose: "Education financial assistance"
+  },
+  {
+    name: "College / University Scholarship",
+    category: "Education",
+    needsIncome: true,
+    purpose: "Higher-education scholarship guidance"
+  },
+  {
+    name: "Old Age Pension",
+    category: "Pension",
+    needsIncome: false,
+    purpose: "Senior citizen pension guidance"
+  },
+  {
+    name: "Widow Pension",
+    category: "Pension",
+    needsIncome: false,
+    purpose: "Pension and support guidance"
+  },
+  {
+    name: "Income Certificate",
+    category: "Certificate",
+    needsIncome: true,
+    purpose: "Income proof application guidance"
+  },
+  {
+    name: "Caste Certificate",
+    category: "Certificate",
+    needsIncome: false,
+    purpose: "Certificate application guidance"
+  },
+  {
+    name: "Residence Certificate",
+    category: "Certificate",
+    needsIncome: false,
+    purpose: "Proof-of-residence guidance"
+  },
+  {
+    name: "Farmer Services",
+    category: "Agriculture",
+    needsIncome: false,
+    purpose: "Farmer welfare services"
+  },
+  {
+    name: "Government Jobs",
+    category: "Employment",
+    needsIncome: false,
+    purpose: "Employment and recruitment services"
+  },
+  {
+    name: "Health Schemes",
+    category: "Health",
+    needsIncome: false,
+    purpose: "Health scheme guidance"
+  },
+  {
+    name: "Ration Card Services",
+    category: "Food",
+    needsIncome: false,
+    purpose: "Food and ration services"
+  },
+  {
+    name: "Government Grievance",
+    category: "Grievance",
+    needsIncome: false,
+    purpose: "Raise and track grievances"
+  }
+];
 
+export function listServices() {
+  return SERVICES;
+}
+
+export function getService(name) {
+  return SERVICES.find(s => s.name === name) || {
+    name,
+    category: "Government Service",
+    needsIncome: false,
+    purpose: "Government service guidance"
+  };
+}
 export async function understandRequest(text) {
   const t = text.toLowerCase();
   if (t.includes("income") || t.includes("scholarship") || t.includes("college")) {
