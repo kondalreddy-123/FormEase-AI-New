@@ -1,22 +1,20 @@
 {
   "name": "formease-ai",
-  "private": true,
   "version": "2.1.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "start": "node server.js"
   },
   "dependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
     "lucide-react": "^0.468.0",
+    "openai": "^5.12.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tesseract.js": "^5.1.1",
-    "jspdf": "^2.5.2"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
+    "react-router-dom": "^7.1.1",
     "vite": "^6.0.5"
   }
 }
