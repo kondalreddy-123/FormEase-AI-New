@@ -1,6 +1,12 @@
 import React,{useEffect,useMemo,useState} from 'react';
 import {ArrowLeft,ArrowRight,AlertTriangle,Accessibility,BarChart3,Bot,Camera,Check,CheckCircle2,CircleHelp,Clock,CloudOff,Copy,Download,FileText,HelpCircle,History,Home as HomeIcon,Languages,Menu,MessageCircle,Mic,RefreshCw,Save,Share2,ShieldCheck,Sparkles,ThumbsDown,ThumbsUp,Upload,UserPlus,Volume2,X} from 'lucide-react';
-import {checkForm,explainField,understandRequest} from './aiService';
+import {
+  checkForm,
+  explainField,
+  understandRequest,
+  getService,
+  listServices
+} from './aiService';
 import {createWorker} from 'tesseract.js';
 import {jsPDF} from 'jspdf';
 
