@@ -104,19 +104,67 @@ export function getService(name) {
 export async function understandRequest(text) {
   const t = String(text || "").toLowerCase().trim();
 
+  // Government Jobs
+  if (
+    t.includes("government job") ||
+    t.includes("govt job") ||
+    t.includes("gov job") ||
+    t.includes("government jobs") ||
+    t.includes("govt jobs") ||
+    t.includes("job") ||
+    t.includes("jobs") ||
+    t.includes("employment") ||
+    t.includes("recruitment") ||
+    t.includes("vacancy") ||
+    t.includes("vacancies")
+  ) {
+    return {
+      service: "Government Jobs",
+      purpose: "Employment",
+      explanation:
+        "You appear to be looking for government job and employment opportunities.",
+      needsClarification: false
+    };
+  }
+
+  // Farmer Services
+  if (
+    t.includes("farmer") ||
+    t.includes("farmers") ||
+    t.includes("agriculture") ||
+    t.includes("agricultural") ||
+    t.includes("farming") ||
+    t.includes("crop") ||
+    t.includes("crops") ||
+    t.includes("kisan")
+  ) {
+    return {
+      service: "Farmer Services",
+      purpose: "Agriculture",
+      explanation:
+        "You appear to be looking for government services related to farmers or agriculture.",
+      needsClarification: false
+    };
+  }
+
+  // Scholarships
   if (
     t.includes("scholarship") ||
-    t.includes("college") ||
-    t.includes("student")
+    t.includes("scholarships") ||
+    t.includes("student scholarship") ||
+    t.includes("college scholarship") ||
+    t.includes("education scholarship")
   ) {
     return {
       service: "Post-Matric Scholarship",
       purpose: "Education / Scholarship",
       explanation:
-        "You appear to be looking for scholarship assistance for education."
+        "You appear to be looking for scholarship assistance for education.",
+      needsClarification: false
     };
   }
 
+  // Income Certificate
   if (
     t.includes("income certificate") ||
     t.includes("income proof") ||
@@ -126,80 +174,75 @@ export async function understandRequest(text) {
       service: "Income Certificate",
       purpose: "Income Certificate",
       explanation:
-        "You appear to be looking for an Income Certificate to provide proof of income."
+        "You appear to be looking for an Income Certificate to provide proof of income.",
+      needsClarification: false
     };
   }
 
-  if (t.includes("caste")) {
+  // Caste Certificate
+  if (
+    t.includes("caste certificate") ||
+    t.includes("caste")
+  ) {
     return {
       service: "Caste Certificate",
       purpose: "Caste Certificate",
       explanation:
-        "You appear to be looking for guidance on applying for a Caste Certificate."
+        "You appear to be looking for guidance on applying for a Caste Certificate.",
+      needsClarification: false
     };
   }
 
+  // Residence Certificate
   if (
+    t.includes("residence certificate") ||
     t.includes("residence") ||
-    t.includes("address certificate") ||
-    t.includes("resident certificate")
+    t.includes("resident certificate") ||
+    t.includes("address certificate")
   ) {
     return {
       service: "Residence Certificate",
       purpose: "Residence Certificate",
       explanation:
-        "You appear to be looking for proof-of-residence guidance."
+        "You appear to be looking for proof-of-residence guidance.",
+      needsClarification: false
     };
   }
 
+  // Old Age Pension
   if (
-    t.includes("pension") &&
-    (t.includes("old") || t.includes("senior") || t.includes("elder"))
+    t.includes("old age pension") ||
+    t.includes("senior citizen pension") ||
+    t.includes("senior pension") ||
+    t.includes("old age")
   ) {
     return {
       service: "Old Age Pension",
       purpose: "Pension",
       explanation:
-        "You appear to be looking for Old Age Pension guidance."
+        "You appear to be looking for Old Age Pension guidance.",
+      needsClarification: false
     };
   }
 
-  if (t.includes("widow")) {
+  // Widow Pension
+  if (
+    t.includes("widow pension") ||
+    t.includes("widow")
+  ) {
     return {
       service: "Widow Pension",
       purpose: "Pension",
       explanation:
-        "You appear to be looking for Widow Pension guidance."
+        "You appear to be looking for Widow Pension guidance.",
+      needsClarification: false
     };
   }
 
+  // Health Schemes
   if (
-    t.includes("farmer") ||
-    t.includes("agriculture") ||
-    t.includes("crop")
-  ) {
-    return {
-      service: "Farmer Services",
-      purpose: "Agriculture",
-      explanation:
-        "You appear to be looking for government services for farmers."
-    };
-  }
-
-  if (
-    t.includes("job") ||
-    t.includes("employment") ||
-    t.includes("recruitment")
-  ) {
-    return {
-      service: "Government Jobs",
-      purpose: "Employment",
-      explanation:
-        "You appear to be looking for government employment and recruitment guidance."
-    };
-  }
-
-  if (
+    t.includes("health scheme") ||
+    t.includes("health schemes") ||
     t.includes("health") ||
     t.includes("medical") ||
     t.includes("hospital")
@@ -208,12 +251,15 @@ export async function understandRequest(text) {
       service: "Health Schemes",
       purpose: "Health",
       explanation:
-        "You appear to be looking for government health scheme guidance."
+        "You appear to be looking for government health scheme guidance.",
+      needsClarification: false
     };
   }
 
+  // Ration Card
   if (
     t.includes("ration") ||
+    t.includes("ration card") ||
     t.includes("food card") ||
     t.includes("food")
   ) {
@@ -221,31 +267,37 @@ export async function understandRequest(text) {
       service: "Ration Card Services",
       purpose: "Food",
       explanation:
-        "You appear to be looking for ration card or food-related government services."
+        "You appear to be looking for ration card or food-related government services.",
+      needsClarification: false
     };
   }
 
+  // Government Grievance
   if (
-    t.includes("complaint") ||
     t.includes("grievance") ||
+    t.includes("complaint") ||
+    t.includes("complaints") ||
+    t.includes("government complaint") ||
     t.includes("problem with government")
   ) {
     return {
       service: "Government Grievance",
       purpose: "Grievance",
       explanation:
-        "You appear to be looking for help raising a government grievance."
+        "You appear to be looking for help raising a government grievance.",
+      needsClarification: false
     };
   }
 
+  // Default
   return {
     service: "Income Certificate",
     purpose: "General",
     explanation:
-      "For this demo, I’ll guide you through an Income Certificate application."
+      "For this demo, I’ll guide you through an Income Certificate application.",
+    needsClarification: false
   };
 }
-
 /* =========================================================
    FIELD EXPLANATIONS
 ========================================================= */
