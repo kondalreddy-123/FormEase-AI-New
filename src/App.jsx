@@ -36,7 +36,52 @@ function App(){
  const go=s=>{setScreen(s);setMobileMenu(false);scrollTo({top:0,behavior:'smooth'})};
  const serviceCard=name=>{if(name==='__reminders__'){go('reminders');return}if(name==='__history__'){go('history');return}const d=duplicateCheck(name);if(d){setDuplicate(d);return}chooseService(name)};
  const update=(k,v)=>{setForm(p=>({...p,[k]:v}));setChecked(false)};
- const startAI=async()=>{setLoading(true);const r=await understandRequest(request);setUnderstanding(r);setLoading(false);go('service')};
+ const startAI = async () => {
+  setLoading(true);
+
+  const r = await understandRequest(request);
+
+  // Scholarship clarification
+  if (r.needsClarification && r.clarificationType === 'scholarship') {
+    setUnderstanding({
+      ...r,
+      matches: [
+        {
+          name: 'Post-Matric Scholarship',
+          category: 'Education',
+          confidence: 1
+        },
+        {
+          name: 'College / University Scholarship',
+          category: 'Higher Education',
+          confidence: 1
+        }
+      ]
+    });
+
+    setLoading(false);
+    go('service');
+    return;
+  }
+
+  setUnderstanding(r);
+
+  // If AI identified a service directly
+  if (r.service && !r.needsClarification) {
+    setService(r.service);
+
+    const s = getService(r.service);
+
+    setForm(p => ({
+      ...p,
+      serviceNeedsIncome: s?.needsIncome,
+      purpose: s?.purpose || p.purpose
+    }));
+  }
+
+  setLoading(false);
+  go('service');
+};
  const chooseService=name=>{const dup=duplicateCheck(name);if(dup){setDuplicate(dup);return}const s=getService(name);setService(name);setUnderstanding({...s,service:name,needsClarification:false});setForm(p=>({...p,serviceNeedsIncome:s?.needsIncome,purpose:s?.purpose||p.purpose}));go('documents')};
  const runCheck=async()=>{setLoading(true);const r=await checkForm({...form,documents:docs,serviceNeedsIncome:getService(service)?.needsIncome});setIssues(r.issues);setChecked(true);setLoading(false)};
  const submit=()=>{const id='FE-2026-'+Math.floor(10000+Math.random()*89999);const record={id,service,applicant:form.name,status:'Submitted',createdAt:new Date().toISOString()};const next=[record,...applications];setApplications(next);localStorage.setItem('formease-applications',JSON.stringify(next));setAppId(id);const rr=[{id:id+'-1',title:service||'Application',text:'Check application status',when:'Tomorrow'},{id:id+'-2',title:service||'Application',text:'Review document status',when:'In 3 days'}];setReminders(rr);localStorage.setItem('formease-reminders',JSON.stringify(rr));go('submitted')};
@@ -57,7 +102,116 @@ function App(){
  {screen==='home'&&<Home onStart={()=>go('need')} onDemo={()=>{setRequest('postmatric shcholar ship for college');go('need')}} onService={serviceCard} reminders={reminders} applications={applications}/>}
  {screen==='reminders'&&<Reminders reminders={reminders} onStart={()=>go('need')}/>}
  {screen==='need'&&<Shell eyebrow="STEP 1 · TELL US" title={t.need} sub="Use normal words, typos, or your regional language. FormEase will clarify instead of guessing."><div className="ai-input-card"><div className="ai-orb"><Bot/></div><div className="grow"><label>Tell FormEase what you need</label><textarea value={request} onChange={e=>setRequest(e.target.value)} placeholder="Example: postmatric shcholar ship for college"/><div className="input-actions"><span><Sparkles size={14}/> AI intent + typo matching</span><div><button className="icon-btn" onClick={voice}><Mic size={18}/></button><button className="icon-btn" onClick={()=>speak(request||'Tell us what you need')}><Volume2 size={18}/></button></div></div></div></div><div className="suggestions"><button onClick={()=>setRequest('scholarship')}>Scholarship</button><button onClick={()=>setRequest('pension')}>Pension</button><button onClick={()=>setRequest('caste certificate')}>Certificate</button><button onClick={()=>setRequest('government job')}>Government job</button></div><div className="actions"><button className="btn ghost" onClick={()=>go('home')}><ArrowLeft/>{t.back}</button><button className="btn primary" disabled={!request.trim()||loading} onClick={startAI}>{loading?'Understanding...':t.understand}<ArrowRight/></button></div></Shell>}
- {screen==='service'&&<Shell eyebrow="STEP 2 · AI CLARIFICATION" title={understanding?.needsClarification?'Before we start, let’s confirm':'Here’s what we understood'} sub={understanding?.explanation||''}>{understanding?.needsClarification?<><div className="clarify"><CircleHelp/><div><b>Did you mean: {understanding.suggested||'one of these services'}?</b><p>I don't want to send you through the wrong application.</p></div></div><div className="service-options">{(understanding.matches||listServices().slice(0,6)).map(s=><button key={s.name} className="service-option" onClick={()=>chooseService(s.name)}><b>{s.name}</b><span>{s.category} · {Math.round((s.confidence||0)*100)}% match</span></button>)}</div><button className="btn ghost" onClick={()=>go('need')}>Describe it differently</button></>:<><div className="understand-card"><CheckCircle2/><div><span className="muted">Selected service</span><h2>{service}</h2><p>{understanding?.purpose}</p></div></div><div className="actions"><button className="btn ghost" onClick={()=>go('need')}><ArrowLeft/>Back</button><button className="btn primary" onClick={()=>go('documents')}>Continue <ArrowRight/></button></div></>}</Shell>}
+{screen==='service'&&
+  <Shell
+    eyebrow="STEP 2 · AI CLARIFICATION"
+    title={understanding?.needsClarification ? "Let's confirm your need" : "Here's what we understood"}
+    sub={understanding?.explanation || ''}
+  >
+    {understanding?.needsClarification ? (
+      <>
+        <div className="clarify">
+          <CircleHelp/>
+          <div>
+            <b>
+              {understanding.clarificationType === 'scholarship'
+                ? 'What type of scholarship are you looking for?'
+                : 'Which service do you need?'}
+            </b>
+
+            <p>
+              I don't want to send you through the wrong application.
+            </p>
+          </div>
+        </div>
+
+        <div className="service-options">
+
+          {/* SCHOLARSHIP OPTIONS */}
+          {understanding.clarificationType === 'scholarship' && (
+            <>
+              <button
+                className="service-option"
+                onClick={() => chooseService('Post-Matric Scholarship')}
+              >
+                <b>🎓 Post-Matric Scholarship</b>
+                <span>
+                  Education · For students seeking education financial assistance
+                </span>
+              </button>
+
+              <button
+                className="service-option"
+                onClick={() => chooseService('College / University Scholarship')}
+              >
+                <b>📚 College / University Scholarship</b>
+                <span>
+                  Higher Education · Scholarship guidance for college/university
+                </span>
+              </button>
+            </>
+          )}
+
+          {/* OTHER AI MATCHES */}
+          {understanding.clarificationType !== 'scholarship' &&
+            understanding.matches?.map(s => (
+              <button
+                key={s.name}
+                className="service-option"
+                onClick={() => chooseService(s.name)}
+              >
+                <b>{s.name}</b>
+                <span>
+                  {s.category}
+                  {s.confidence
+                    ? ` · ${Math.round(s.confidence * 100)}% match`
+                    : ''}
+                </span>
+              </button>
+            ))
+          }
+
+        </div>
+
+        <button
+          className="btn ghost"
+          onClick={() => go('need')}
+        >
+          Describe it differently
+        </button>
+      </>
+    ) : (
+      <>
+        <div className="understand-card">
+          <CheckCircle2/>
+          <div>
+            <span className="muted">Selected service</span>
+            <h2>{service}</h2>
+            <p>{understanding?.purpose}</p>
+          </div>
+        </div>
+
+        <div className="actions">
+          <button
+            className="btn ghost"
+            onClick={() => go('need')}
+          >
+            <ArrowLeft/>
+            Back
+          </button>
+
+          <button
+            className="btn primary"
+            onClick={() => go('documents')}
+          >
+            Continue
+            <ArrowRight/>
+          </button>
+        </div>
+      </>
+    )}
+  </Shell>
+}
  {screen==='documents'&&<Shell eyebrow="STEP 3 · DOCUMENTS" title="Upload once, auto-fill where possible" sub="Snap or upload a document. OCR extracts text in your browser; verify every extracted value before continuing."><div className="scanner-actions"><label className="btn ghost"><Camera/> Scan with camera<input hidden type="file" accept="image/*" capture="environment" onChange={e=>{const f=e.target.files?.[0];if(f)uploadDoc(docsFor.find(k=>!docs[k])||'identity',f)}}/></label><button className="btn ghost" onClick={shareChecklist}><Share2/> Share checklist</button></div><div className="doc-list">{docsFor.map(key=><DocRow key={key} k={key} value={docs[key]} onUpload={uploadDoc} onToggle={()=>setDocs(p=>({...p,[key]:p[key]?null:{manual:true}}))}/>)}</div><div className="expiry-card"><b>Document expiry tracking</b><p>Set an expiry date for certificates/IDs and FormEase will warn you before renewal is needed.</p><div className="expiry-grid">{Object.keys(docs).filter(k=>docs[k]).map(k=><input key={k} type="date" value={expiry[k]||''} onChange={e=>setExpiry({...expiry,[k]:e.target.value})} aria-label={`${k} expiry`}/>)}</div></div><div className="doc-summary"><FileText/><b>{docsFor.filter(k=>docs[k]).length} of {docsFor.length}</b> documents ready</div><div className="actions"><button className="btn ghost" onClick={()=>go('service')}><ArrowLeft/>Back</button><button className="btn primary" onClick={()=>go('form')}>Start guided form <ArrowRight/></button></div></Shell>}
  {screen==='form'&&<Shell eyebrow="STEP 4 · GUIDED FORM" title="Your details" sub="Fields detected by OCR are prefilled. Age is calculated automatically."><div className="profile-bar"><b>Applicant profile</b><select value={activeProfile} onChange={e=>setActiveProfile(e.target.value)}>{profiles.map(p=><option key={p.id} value={p.id}>{p.name} · {p.relation}</option>)}</select><button className="text-btn" onClick={()=>{const name=prompt('Family member name?');if(name){const p={id:Date.now()+'',name,relation:'Family member'};setProfiles([...profiles,p]);setActiveProfile(p.id)}}}><UserPlus size={16}/> Add family member</button></div><div className="form-card">{[['name','Full name','text'],['dob','Date of birth','date'],['age','Age','number'],['mobile','Mobile number','text']].map(([k,l,type])=><div key={k} className="field-wrap"><Field label={l} value={form[k]||''} type={type} disabled={k==='age'} onChange={v=>{update(k,k==='mobile'?v.replace(/\D/g,'').slice(0,10):v);if(aiFilled[k])setAiFilled(p=>({...p,[k]:false}))}}/>{aiFilled[k]&&<small className="ai-confidence">AI-filled — please verify</small>}</div>) }<Field label="Occupation" value={form.occupation||''} type="text" onChange={v=>update('occupation',v)}/>{getService(service)?.needsIncome&&<><Field label="Family income" value={form.income||''} type="number" onChange={v=>update('income',v)}/><div className="field"><label>Income frequency</label><select value={form.incomeFrequency||''} onChange={e=>update('incomeFrequency',e.target.value)}><option value="">Select</option><option>Monthly</option><option>Yearly</option></select></div></>}</div><div className="eligibility"><h3>Quick eligibility checker</h3><p>Answer before spending time on the full application.</p>{['I meet the age/beneficiary condition','My income/category matches the scheme','I have the required residence/status'].map((q,i)=><label key={q}><input type="checkbox" checked={!!eligibility?.[i]} onChange={e=>setEligibility({...eligibility,[i]:e.target.checked})}/>{q}</label>)}<b>{eligibilityScore>=2?'Likely eligible — verify official rules before applying.':'Complete the quick check to see a provisional result.'}</b></div><div className="actions"><button className="btn ghost" onClick={()=>go('documents')}><ArrowLeft/>Back</button><button className="btn primary" onClick={()=>go('check')}>AI form check <Sparkles/></button></div></Shell>}
  {screen==='check'&&<Shell eyebrow="STEP 5 · AI CHECK" title="Catch mistakes before submission" sub="Checks required fields, document availability, expiry warnings and obvious inconsistencies.">{!checked?<div className="check-start"><Bot size={45}/><h2>Ready?</h2><button className="btn primary large" onClick={runCheck} disabled={loading}>{loading?'Checking...':'Run AI Form Check'}<Sparkles/></button></div>:<><div className={issues.length?'check-result has-issues':'check-result ready'}>{issues.length?<><CircleHelp/><div><h2>{issues.length} issue(s) found</h2><p>Fix these before review.</p></div></>:<><CheckCircle2/><div><h2>Looks ready</h2><p>No obvious issues detected.</p></div></>}</div>{issues.map(i=><div className="issue" key={i.field}><b>{i.title}</b><p>{i.message}</p><small>How to fix: {i.fix}</small></div>)}<div className="actions"><button className="btn ghost" onClick={()=>go('form')}>Edit form</button>{!issues.length&&<button className="btn primary" onClick={()=>go('review')}>Review <ArrowRight/></button>}</div></>}</Shell>}
