@@ -100,202 +100,176 @@ export function getService(name) {
 /* =========================================================
    REQUEST UNDERSTANDING
 ========================================================= */
-
 export async function understandRequest(text) {
-  const t = String(text || "").toLowerCase().trim();
+  const t = text.toLowerCase().trim();
 
-  // Government Jobs
-  if (
-    t.includes("government job") ||
-    t.includes("govt job") ||
-    t.includes("gov job") ||
-    t.includes("government jobs") ||
-    t.includes("govt jobs") ||
-    t.includes("job") ||
-    t.includes("jobs") ||
-    t.includes("employment") ||
-    t.includes("recruitment") ||
-    t.includes("vacancy") ||
-    t.includes("vacancies")
-  ) {
-    return {
-      service: "Government Jobs",
-      purpose: "Employment",
-      explanation:
-        "You appear to be looking for government job and employment opportunities.",
-      needsClarification: false
-    };
-  }
-
-  // Farmer Services
-  if (
-    t.includes("farmer") ||
-    t.includes("farmers") ||
-    t.includes("agriculture") ||
-    t.includes("agricultural") ||
-    t.includes("farming") ||
-    t.includes("crop") ||
-    t.includes("crops") ||
-    t.includes("kisan")
-  ) {
-    return {
-      service: "Farmer Services",
-      purpose: "Agriculture",
-      explanation:
-        "You appear to be looking for government services related to farmers or agriculture.",
-      needsClarification: false
-    };
-  }
-
-  // Scholarships
+  // Scholarship → ask for clarification
   if (
     t.includes("scholarship") ||
     t.includes("scholarships") ||
-    t.includes("student scholarship") ||
-    t.includes("college scholarship") ||
-    t.includes("education scholarship")
+    t.includes("scholar")
   ) {
     return {
-      service: "Post-Matric Scholarship",
+      service: "Scholarship",
       purpose: "Education / Scholarship",
       explanation:
-        "You appear to be looking for scholarship assistance for education.",
+        "I found that you are looking for a scholarship. Please choose the type of education or scholarship you need.",
+      needsClarification: true,
+      clarificationType: "scholarship"
+    };
+  }
+
+  // Government jobs
+  if (
+    t.includes("government job") ||
+    t.includes("govt job") ||
+    t.includes("govt jobs") ||
+    t.includes("government jobs") ||
+    t.includes("employment") ||
+    t.includes("recruitment")
+  ) {
+    return {
+      service: "Government Jobs",
+      purpose: "Employment and recruitment services",
+      explanation:
+        "You appear to be looking for government job or employment opportunities.",
       needsClarification: false
     };
   }
 
-  // Income Certificate
+  // Farmer services
+  if (
+    t.includes("farmer") ||
+    t.includes("farming") ||
+    t.includes("agriculture") ||
+    t.includes("crop")
+  ) {
+    return {
+      service: "Farmer Services",
+      purpose: "Farmer welfare services",
+      explanation:
+        "You appear to be looking for agricultural or farmer-related government services.",
+      needsClarification: false
+    };
+  }
+
+  // Income certificate
   if (
     t.includes("income certificate") ||
     t.includes("income proof") ||
-    t.includes("family income")
+    t.includes("income document")
   ) {
     return {
       service: "Income Certificate",
-      purpose: "Income Certificate",
+      purpose: "Income proof application guidance",
       explanation:
-        "You appear to be looking for an Income Certificate to provide proof of income.",
+        "You appear to be looking for an Income Certificate.",
       needsClarification: false
     };
   }
 
-  // Caste Certificate
+  // Caste certificate
   if (
     t.includes("caste certificate") ||
     t.includes("caste")
   ) {
     return {
       service: "Caste Certificate",
-      purpose: "Caste Certificate",
+      purpose: "Certificate application guidance",
       explanation:
-        "You appear to be looking for guidance on applying for a Caste Certificate.",
+        "You appear to be looking for a Caste Certificate.",
       needsClarification: false
     };
   }
 
-  // Residence Certificate
+  // Residence certificate
   if (
     t.includes("residence certificate") ||
-    t.includes("residence") ||
-    t.includes("resident certificate") ||
-    t.includes("address certificate")
+    t.includes("residence proof") ||
+    t.includes("domicile")
   ) {
     return {
       service: "Residence Certificate",
-      purpose: "Residence Certificate",
+      purpose: "Proof-of-residence guidance",
       explanation:
-        "You appear to be looking for proof-of-residence guidance.",
+        "You appear to be looking for a Residence Certificate.",
       needsClarification: false
     };
   }
 
-  // Old Age Pension
-  if (
-    t.includes("old age pension") ||
-    t.includes("senior citizen pension") ||
-    t.includes("senior pension") ||
-    t.includes("old age")
-  ) {
+  // Pension
+  if (t.includes("old age pension") || t.includes("senior citizen pension")) {
     return {
       service: "Old Age Pension",
-      purpose: "Pension",
+      purpose: "Senior citizen pension guidance",
       explanation:
-        "You appear to be looking for Old Age Pension guidance.",
+        "You appear to be looking for an Old Age Pension.",
       needsClarification: false
     };
   }
 
-  // Widow Pension
-  if (
-    t.includes("widow pension") ||
-    t.includes("widow")
-  ) {
+  if (t.includes("widow pension")) {
     return {
       service: "Widow Pension",
-      purpose: "Pension",
+      purpose: "Pension and support guidance",
       explanation:
-        "You appear to be looking for Widow Pension guidance.",
+        "You appear to be looking for Widow Pension support.",
       needsClarification: false
     };
   }
 
-  // Health Schemes
+  // Health
   if (
     t.includes("health scheme") ||
-    t.includes("health schemes") ||
-    t.includes("health") ||
-    t.includes("medical") ||
-    t.includes("hospital")
+    t.includes("health insurance") ||
+    t.includes("medical scheme")
   ) {
     return {
       service: "Health Schemes",
-      purpose: "Health",
+      purpose: "Health scheme guidance",
       explanation:
-        "You appear to be looking for government health scheme guidance.",
+        "You appear to be looking for a government health scheme.",
       needsClarification: false
     };
   }
 
-  // Ration Card
+  // Ration card
   if (
-    t.includes("ration") ||
     t.includes("ration card") ||
-    t.includes("food card") ||
-    t.includes("food")
+    t.includes("ration") ||
+    t.includes("food card")
   ) {
     return {
       service: "Ration Card Services",
-      purpose: "Food",
+      purpose: "Food and ration services",
       explanation:
-        "You appear to be looking for ration card or food-related government services.",
+        "You appear to be looking for Ration Card services.",
       needsClarification: false
     };
   }
 
-  // Government Grievance
+  // Grievance
   if (
-    t.includes("grievance") ||
     t.includes("complaint") ||
-    t.includes("complaints") ||
-    t.includes("government complaint") ||
-    t.includes("problem with government")
+    t.includes("grievance") ||
+    t.includes("complain")
   ) {
     return {
       service: "Government Grievance",
-      purpose: "Grievance",
+      purpose: "Raise and track grievances",
       explanation:
-        "You appear to be looking for help raising a government grievance.",
+        "You appear to be looking to raise a government grievance.",
       needsClarification: false
     };
   }
 
-  // Default
+  // Unknown request
   return {
-    service: "Income Certificate",
-    purpose: "General",
+    service: null,
+    purpose: "Government Service",
     explanation:
-      "For this demo, I’ll guide you through an Income Certificate application.",
-    needsClarification: false
+      "I couldn't identify the exact service. Please choose a service from the available options.",
+    needsClarification: true
   };
 }
 /* =========================================================
